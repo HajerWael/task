@@ -1,0 +1,321 @@
+﻿@using task.Data.Entities;
+
+    <div class="page-body-wrapper">
+
+        <div class="page-body">
+            <!-- Container-fluid starts -->
+            <div class="container-fluid">
+                <div class="page-header">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h3>
+                                Plugin DataTable
+                                <small>Universal Admin panel</small>
+                            </h3>
+                        </div>
+                        <div class="col-lg-6">
+                            <ol class="breadcrumb pull-right">
+                                <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
+                                <li class="breadcrumb-item">Tables</li>
+                                <li class="breadcrumb-item">Data Tables</li>
+                                <li class="breadcrumb-item active">Plug in</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Container-fluid Ends -->
+            <div class="container-fluid">
+                <div class="row">
+
+                    <!-- DOM / jQuery  Starts -->
+                    <div class="col-sm-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Employees</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="dt-plugin-buttons"></div>
+                                <div class="table-responsive">
+                                    <table id="dt-plugin-method" class="display datatables">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Name</th>
+                                                <th>Birthdate</th>
+                                                <th>Company</th>
+                                                <th>Status </th>
+                                                <th>Operations</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="tableContent">
+
+                                            @{var i = 0;}
+                                            @foreach (Employee emp in (Employee[])ViewBag.Employees)
+                                            {
+                                               
+                                                <tr>
+                                                    <td>@i </td>
+                                                    <td>@emp.name</td>
+                                                    <td>@emp.birthDate</td>
+
+                                                    <td>@emp.Company.Name</td>
+                                                    <td>@emp.status</td>
+                                                    <td>
+                                                        <button class="btn btn-info" data-indx="@i" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></button>
+                                                        <button class="btn btn-primary" data-indx="@i" data-toggle="modal" data-target="#editPricesModal"><i class="fa fa-dollar"></i> </button>
+                                                        <button class="btn btn-danger" data-indx="@i" data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                                i++;
+                                            }
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- DOM / jQuery  Ends -->
+
+                </div>
+            </div>
+        </div>
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel2">Edit Record</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="editForm"   method="post">
+                        <div class="modal-body">
+
+                            <input id="edit_record_id" name="edit_id" value="" style="display:none">
+                            <div class="form-row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="validationDefault01">Name <span class="text-danger"> * </span></label>
+                                    <input type="text" name="name_en" id="edit_name_en" class="form-control" placeholder="" value="" required="">
+                                </div>
+                            </div>
+                            <div class="form-row" style="text-align:right">
+                                <div class="col-md-12 mb-3">
+                                    <label for="validationDefault03"> <span class="text-danger"> * </span>الاسم</label>
+                                    <input type="text" name="name_ar" id="edit_name_ar" class="form-control" placeholder=" " required="">
+                                </div>
+                            </div>
+                            <div id="editResponse">
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal"><?= $this->lang->line('cancel') ?></button>
+                            <input type="submit" class="btn btn-primary" value="<?= $this->lang->line('save') ?>">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- latest jquery-->
+<script src="~/assets/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap js-->
+<script src="~/assets/js/bootstrap/popper.min.js"></script>
+<script src="~/assets/js/bootstrap/bootstrap.js"></script>
+
+<!-- Sidebar jquery-->
+<script src="~/assets/js/sidebar-menu.js"></script>
+
+<!-- Theme js-->
+<script src="~/assets/js/script.js"></script>
+
+
+<!--Datatable js-->
+<script src="~/assets/js/datatables/jquery.dataTables.min.js"></script>
+<script src="~/assets/js/datatables/datatable.custom.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var list = [];
+        fill_data();
+
+        // Retrieve all records
+        function fill_data() {
+            $('#export-button').DataTable().destroy();
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("getEmployees")',
+                beforeSend: function () {
+                    // $('#errorMsg').html('');
+                },
+                dataType: 'JSON',
+                success: function (data) {
+                    list = data;
+                    var rows = '';
+                   /////// for (var i = 0; i < list.length; i++) {
+                    $.each(list, function (i, item) {
+                        var rowClass = 'odd';
+                        if (i % 2 == 0)
+                            rowClass = 'even';
+                        rows += '<tr class="' + rowClass + '">' +
+                            '<td>' + (i + 1) + '</td>' +
+                            '<td>' + item.name + '</td>' +
+                            '<td>' + item.birthDate + '</td>' +
+                            '<td>' + item.Company.Name + '</td>' +
+                            '<td>' + item.Company.Name + '</td>' +
+                            '<td><button class="btn btn-info" data-indx=' + i + ' data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></button> ' +
+                            '<button class="btn btn-danger" data-indx=' + i + '  data-indx=' + i + ' data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash"></i></button>' +
+                            '</td>' +
+                            '</tr>';
+                    });
+                    $("#tableContent").html(rows);
+                    // if(data['result'] == 'success'){
+                    //     window.location.href = data['redirect_url'];
+                    // }else{
+                    //     $('#errorMsg').html(''+data['message']);
+                    //     $('#errorDiv').show();
+                    // }
+                }, error: function (data) {
+                    console.log(data);
+                }
+            });
+            $('#export-button').DataTable().draw();
+            return false;
+        }
+
+
+        // edit Record
+        $('#editModal').on('show.bs.modal', function (event) {
+           // alert('Hii');
+            var recordIndex = $(event.relatedTarget).attr('data-indx');
+            /*var recordData = list[recordIndex];
+            $('#edit_record_id').val(recordData.id);
+            $('#edit_name_ar').val(recordData.name_ar);
+            $('#edit_name_en').val(recordData.name_en);*/
+        });
+
+        // submit edit record
+        $('#editForm').on('submit', function (e) {
+            e.preventDefault(e);
+            var formData = new FormData($('#editForm')[0]);
+
+            $.ajax({
+                type: 'POST',
+                processData: false,
+                contentType: false,
+                data: formData,
+                dataType: 'json',
+                url: '<?= base_url()?>Settings/cities/edit',
+                beforeSend: function () {
+                    $('#editResponse').html('');
+                },
+                dataType: 'JSON',
+                success: function (data) {
+                    // if(data.status == 'Cerated ...'){
+                    swal({
+                        title: 'Done',
+                        text: "Successed updated",
+                        type: 'success',
+                        icon: "success",
+                        confirmButtonText: 'OK'
+                    });
+                    $('#editModal').modal('hide');
+                    fill_data();
+                    // }
+                }, error: function (data) {
+                    var code = data.status;
+                    if (code == 500) {
+                        $('#editResponse').html(' <div class="alert alert-danger light" role="alert">' +
+                            'Failed' +
+                            '</div>');
+                    } else if (code == 400) {
+                        $('#editResponse').html(' <div class="alert alert-danger light" role="alert">' +
+                            'Required Fields' +
+                            '</div>');
+                    } else {
+
+                    }
+                }
+            });
+            return false;
+        });
+
+        // delete Record
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var recordIndex = $(event.relatedTarget).attr('data-indx');
+            var recordData = list[recordIndex];
+            $('#delete_record_id').val(recordData.id);
+            $('#delete_name_ar').val(recordData.name_ar);
+            $('#delete_name_en').val(recordData.name_en);
+        });
+
+        // submit delete record
+        $('#deleteForm').on('submit', function (e) {
+            e.preventDefault(e);
+            swal({
+                title: "Are You Sure ?",
+                text: " ",
+                type: "error",
+                icon: "warning",
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "OK",
+                cancelButtonText: "Cancel",
+                showCancelButton: true
+            }).then((willDelete) => {
+                var formData = new FormData($('#deleteForm')[0]);
+                $.ajax({
+                    type: 'POST',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    dataType: 'json',
+                    url: '<?= base_url()?>Settings/cities/delete',
+                    beforeSend: function () {
+                        $('#deleteResponse').html('');
+                    },
+                    dataType: 'JSON',
+                    success: function (data) {
+                        // if(data.status == 'Cerated ...'){
+                        swal({
+                            title: 'Done ',
+                            text: "Successfuly deleted",
+                            type: 'success',
+                            icon: "success",
+                            confirmButtonText: 'OK'
+                        });
+                        $('#deleteModal').modal('hide');
+                        fill_data();
+                        // }
+                    }, error: function (data) {
+                        var code = data.status;
+                        if (code == 500) {
+                            $('#deleteResponse').html(' <div class="alert alert-danger light" role="alert">' +
+                                ' ' +
+                                '</div>');
+                        } else if (code == 400) {
+                            $('#deleteResponse').html(' <div class="alert alert-danger light" role="alert">' +
+                                'Required Fields' +
+                                '</div>');
+                        } else {
+
+                        }
+                    }
+                });
+            }
+            );
+            //return false;
+
+
+        });
+    });
+
+</script>
