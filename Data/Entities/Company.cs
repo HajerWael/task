@@ -9,7 +9,7 @@ namespace task.Data.Entities
     public class Company
     {
         public int Id { get; set; }
-        [Required]
+       /// [Required]
         public string Name { get; set; }
 
         public ICollection<Employee> Employees { get; set; }

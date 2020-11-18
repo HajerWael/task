@@ -9,7 +9,7 @@ namespace task.Data.Entities
     public class Student
     {
         public int Id { get; set; }
-        [Required]
+       // [Required]
         public string Name { get; set; }
     
     }

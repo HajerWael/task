@@ -11,11 +11,13 @@ namespace task.Data.Entities
     {
         public int Id { get; set; }
         
-        [Required]
+       // [Required]
         public string Name { get; set; }
         
         [ForeignKey("Department")]
         public Department ParentDepartment { get; set; }
+
+        public int ParentId { get; set; }
 
     }
 }

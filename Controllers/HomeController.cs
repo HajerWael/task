@@ -32,12 +32,17 @@ namespace task.Controllers
             return View();
         }
 
-        [HttpGet]
-        public JsonResult getEmployees()
+       
+        public IActionResult Employees()
         {   
-            var list = _db_cntx.Employees.Include(e => e.Company).ToList();
 
-            return Json(new {  data = list });
+            return View();
+        }
+        
+        public IActionResult Students()
+        {   
+
+            return View();
         }
 
         public IActionResult Privacy()
