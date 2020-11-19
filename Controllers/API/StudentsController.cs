@@ -38,6 +38,33 @@ namespace task.Controllers.API
             // return new string[] { "value1", "value2" };
         }
 
+
+
+        // GET: api/<StudentsController>
+        /*[HttpGet]
+        public ActionResult GetStudentsCourses()
+        {
+
+            var list = _db_cntx.StudentsCourses.Include(sc => sc.Student).Select(sc => sc.Course).ToList();
+
+            return Ok(new { data = list });
+            // return new string[] { "value1", "value2" };
+        }*/
+
+
+
+
+        // GET api/<StudentsController>/5
+        [HttpGet("{id}")]
+        public ActionResult GetStudentCourses(int id)
+        {
+            var list = _db_cntx.StudentsCourses
+                .Where(sc => sc.Student.Id == id)
+                .ToList();
+
+            return Ok(new { data = list });
+        }
+
         // GET api/<StudentsController>/5
         [HttpGet("{id}")]
         public ActionResult Get(int id)
@@ -100,6 +127,8 @@ namespace task.Controllers.API
             {
                 return Forbid();
             }
+            IList<StudentCourse> courses = _db_cntx.StudentsCourses.Where(c => c.StudentId == id).ToList();
+            _db_cntx.StudentsCourses.RemoveRange(courses);
             _db_cntx.Students.Remove(obj);
             try
             {
