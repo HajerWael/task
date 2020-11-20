@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using task.Data;
 using task.Data.Entities;
 
@@ -101,12 +102,21 @@ namespace task.Controllers.API
         [HttpDelete("{id}")]
         public async Task<ActionResult<Department>> Delete(int id)
         {
-            var obj = _db_cntx.Departments.Find(id);
-            if (obj == null)
-            {
-                return Forbid();
-            }
-            _db_cntx.Departments.Remove(obj);
+            
+           
+                var obj = _db_cntx.Departments.Find(id);
+            
+           
+                if (obj == null)
+                {
+                    return Forbid();
+                }
+
+                IList<Department> childs = _db_cntx.Departments.Where(d => d.Parent == obj).ToList();
+                _db_cntx.Departments.RemoveRange(childs);
+                _db_cntx.Departments.Remove(obj);
+     
+           
             try
             {
                 await _db_cntx.SaveChangesAsync();

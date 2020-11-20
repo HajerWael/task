@@ -66,6 +66,10 @@ var tree_custom = {
         });
     }
 };
+
+
+///////var selectedArr = new Array();
 jQuery(document).ready(function() {
     tree_custom.init()
+  ////  tree_custom.open_all();
 });

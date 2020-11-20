@@ -33,9 +33,13 @@
                             <h5>Basic Tree</h5>
                         </div>
                         <div class="card-body">
-                            <button type="button" class="btn btn-primary" data-original-title="btn btn-primary " title="" data-toggle="modal" data-target="#addModal"><i class="fa fa-plus"></i> Add New</button><br><br>
-                            <br />
-                            <div id="treeBasic">
+                            <button type="button" class="btn btn-primary" data-original-title="btn btn-primary " title="" data-toggle="modal" data-target="#addModal"><i class="fa fa-plus"></i> Add New</button>
+                             
+                            <button type="button" class="btn btn-info" data-original-title="btn btn-primary " title="" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i> Edit</button>
+                             
+                            <button type="button" class="btn btn-danger" data-original-title="btn btn-primary " title="" data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash"></i> Delete</button><br><br>
+                             
+                            <div id="treecheckbox">
                                 <ul>
                                     <li>
                                         All
@@ -51,7 +55,69 @@
                 </div>
             </div>
 
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel2">Delete Record</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form id="deleteForm">
+                            <div class="modal-body">
 
+                                <div id="deleteContent"></div>
+                                <div id="deleteResponse">
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+
+                                <input id="delete_record_id" name="delete_id" value="" style="display:none">
+
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <input type="submit" class="btn btn-primary" value="Save">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>  
+    
+            <!-- Edit  Modal -->
+            <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel2">Edit Record</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form id="editForm" >
+                            <div class="modal-body">
+
+                                <div id="editContent"></div>
+                                <div id="editResponse">
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+
+                               
+
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <input type="submit" class="btn btn-primary" value="Save">
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
             <!-- Add  Modal -->
             <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -107,12 +173,15 @@
 <script src="~/assets/js/jquery-3.2.1.min.js"></script>
 
 <div id="treeJS">
-     
+    <!--
+     <script src='https://localhost:44304/assets/js/tree/jstree.min.js'> </script>
+    <script src='https://localhost:44304/assets/js/tree/tree.js'> </script>
+    -->
 
-</div>
+</div >
 
-<!-- Bootstrap js-->
-<script src="~/assets/js/bootstrap/popper.min.js"></script>
+<!--Bootstrap js-->
+            <script src="~/assets/js/bootstrap/popper.min.js"></script>
 <script src="~/assets/js/bootstrap/bootstrap.js"></script>
 
 <!-- Sidebar jquery-->
@@ -131,16 +200,19 @@
     $(document).ready(function () {
         var list = [];
         var departmentsList = [];
-       
+        var nodes = [];
+        var editNodes = [];
         fill_data();
-         
+
 
         // Retrieve all records
         function fill_data() {
-            //$('#treeBasic').jstree(true).refresh();
+            //$('#treeBasic').jstree().destroy();
+
+            // tree_custom.destroy();
             $.ajax({
                 type: 'GET',
-                url: 'https://localhost:44304/api/Departments',           
+                url: 'https://localhost:44304/api/Departments',
                 dataType: 'JSON',
                 success: function (data) {
                     list = data.data;
@@ -148,25 +220,25 @@
                     var rows = '';
                     for (var i = 0; i < list.length; i++) {
                         var item = list[i];
-                       
-                    //    rows += "<li data-jstree='{ 'opened': true } '>" + item.name;
-                            var sub_menu = traceTree(item);                             
-                            rows += sub_menu;
+
+                        //    rows += "<li data-jstree='{ 'opened': true } '>" + item.name;
+                        var sub_menu = traceTree(item);
+                        rows += sub_menu;
                         //    rows += "</li >";
 
                     }
                     ///console.log(rows);
-                    
+
                     $("#treeContent").html(rows);
-                    
+
                 }, complete: function () {
-                    
-                    
+
+                    //$('#treeBasic').jstree(true).refresh();
+
                     $("<script src='https://localhost:44304/assets/js/tree/jstree.min.js'>" + "<\/script>").appendTo('#treeJS');
                     $("<script src='https://localhost:44304/assets/js/tree/tree.js'>" + "<\/script>").appendTo('#treeJS');
-                   
-                   /// tree_custom.init();
-                    //$('#treeBasic').jstree(true).refresh();
+
+
                 }
 
                 , error: function (data) {
@@ -180,20 +252,21 @@
         var sub_menu = "";
         var traceTree = function (item) {
             console.log('********');
-            sub_menu += "<li data-indx='" + item.id + "' data-jstree='{'type':'file'}'>" + item.name +
-                "<i class='jstree-icon jstree-themeicon fa fa-trash font-theme jstree-themeicon-custom text-danger'> </i>" +
-                " <i class='text-info jstree-icon jstree-themeicon fa fa-edit font-theme jstree-themeicon-custom'> </i >";
-            
+            sub_menu += "<li data-indx='" + item.id + "' data-jstree='{'type':'file'}'>" + item.name;
+
+
             if (item.subDepartments != null && item.subDepartments.length) {
-             
+
                 sub_menu += "<ul>";
-                for(var i = 0; i < item.subDepartments.length;i++) {
-                 
+                for (var i = 0; i < item.subDepartments.length; i++) {
+
                     traceTree(item.subDepartments[i]);
-                
+
                 }
                 sub_menu += "</ul>";
             }
+            sub_menu += "<i class='jstree-icon jstree-themeicon fa fa-trash font-theme jstree-themeicon-custom text-danger'> </i>" +
+                " <i class='text-info jstree-icon jstree-themeicon fa fa-edit font-theme jstree-themeicon-custom'> </i >";
             sub_menu += "</li>";
             return sub_menu;
         };
@@ -202,14 +275,15 @@
         // Add  Record
         $('#addModal').on('show.bs.modal', function (event) {
             fillDropList();
+
         });
 
         // Retrieve all records
         function fillDropList() {
             var options = '';
 
-            departmentsList = null;
-      
+            ///  departmentsList = null;
+
 
 
             $.ajax({
@@ -229,7 +303,7 @@
                             options += '<option value="' + departmentsList[i].id + '">' + departmentsList[i].name + '</option>';
                         }
                         $('#parentId').html(options);
-                       /// $('#edit_CoourseId').html(options);
+                        /// $('#edit_CoourseId').html(options);
                     }
 
                 }, error: function (data) {
@@ -262,7 +336,7 @@
                 data: JSON.stringify(formData),
                 success: function (data) {
                     console.log(data);
-                    // if(data.status == 'Cerated ...'){             
+                    // if(data.status == 'Cerated ...'){
                     swal({
                         title: 'Done ',
                         text: "Successfuly Added ....",
@@ -286,7 +360,199 @@
 
         });
 
+        // delete student Record
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            $('#deleteContent').html('');
+            if (departmentsList == null)
+                fillDropList();
 
+            var selected_nodes = returnList();
+            console.log(returnList());
+            for (var i = 0; i < selected_nodes.length; i++) {
+                var indx = parseInt(selected_nodes[i]);
+                console.log(indx);
+                var obj = get_obj(indx);
+                console.log(obj);
+                if (obj != null) {
+                    var item = departmentsList[departmentsList.indexOf(obj)];
+                    console.log(item);
+                    nodes[i] = item.id;
+                    $('#deleteContent').append("<div class='form-row'><div class= 'col-md-12 mb-3'><input type='text'   class='form-control' placeholder='' value='" + item.name + "' required='' disabled=''></div></div >");
+                    $('#deleteContent').append("<hr>");
+
+                }
+
+            }
+
+
+            console.log(nodes);
+        });
+
+        // edit student Record
+        $('#editModal').on('show.bs.modal', function (event) {
+            $('#editContent').html('');
+            if (departmentsList == null)
+                fillDropList();
+            var selected_nodes = returnList();
+            console.log(selected_nodes);
+            // FILL Drop Down list
+            var options = '';
+            for (var y = 0; y < departmentsList.length; y++) {
+                options += '<option value=' + departmentsList[y].id + '>' + departmentsList[y].name + '</option>';
+            }
+            for (var i = 0; i < selected_nodes.length; i++) {
+                var indx = parseInt(selected_nodes[i]);
+                var obj = get_obj(indx);
+                if (obj != null) {
+                    var item = departmentsList[departmentsList.indexOf(obj)];
+                    editNodes[i] = item;
+                    $('#editContent').append("<div class='form-row'><div class= 'col-md-12 mb-3'><input type='text' id='editRecId" + item.id + "'  class='form-control' placeholder='' value='" + item.id + "' required='' hidden></div></div >");
+                    $('#editContent').append("<div class='form-row'><div class= 'col-md-12 mb-3'><input type='text' id='editName" + item.id + "'  class='form-control' placeholder='' value='" + item.name + "' required=''></div></div >");
+                    $('#editContent').append("<div class='form-row'><div class= 'col-md-12 mb-3'><select id='editParentId" + item.id + "'  class='form-control editParentId'  required=''>" + options + "</select></div></div >");
+                    $('#editContent').append("<hr>");
+                    $('#editParentId' + item.id + '').val(item.parentId);
+                }
+
+            }
+            //  console.log(nodes);
+        });
+
+        // submit  Record
+
+        $(document).on('submit', '#editForm', function (e) {
+            e.preventDefault(e);
+            for (var i = 0; i < nodes.length; i++) {
+                var item = editNodes[i];
+                console.log('******');
+
+                var formData = {
+                    "id": $('#editRecId' + item.id + '').val(),
+                    "name": $('#editName' + item.id + '').val(),
+                    "parentId": $('#editParentId' + item.id + '').val()
+                };
+
+                console.log(formData);
+
+                //  return false;
+
+                $.ajax({
+                    type: 'Put',
+                    processData: false,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    data: JSON.stringify(formData),
+                    url: "https://localhost:44304/api/Departments",
+                    success: function (data) {
+                        console.log(data);
+                        // if(data.status == 'Cerated ...'){
+                        swal({
+                            title: 'Done ',
+                            text: "Successfuly Updated ....",
+                            type: 'success',
+                            icon: "success",
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'OK'
+                        });
+                        $('#editModal').modal('hide');
+                        fill_data();
+                        // }
+                    }, error: function (data) {
+                        console.log(data);
+                        $('#addResponse').html(' <div class="alert alert-danger light" role="alert">' +
+                            'Failed' +
+                            '</div>');
+
+                    }
+                });
+            }
+            return false;
+        });
+
+
+        function get_obj(id) {
+            for (var i = 0; i < departmentsList.length; i++) {
+                if (departmentsList[i].id == id) {
+                    return departmentsList[i];
+                }
+            }
+            return null;
+        }
+
+
+        // submit delete record
+        $('#deleteForm').on('submit', function (e) {
+            e.preventDefault(e);
+            swal({
+                title: "Are You Sure ?",
+                text: " ",
+                type: "error",
+                icon: "warning",
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "OK",
+                cancelButtonText: "Cancel",
+                showCancelButton: true
+            }).then((willDelete) => {
+                ///// return false;
+                console.log(nodes);
+
+                var formData = {
+                    "ids": nodes
+
+                };
+                for (var y = 0; y < nodes.length; y++) {
+                    $.ajax({
+                        type: 'Delete',
+                        processData: false,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        headers: {
+                            RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                        },
+
+                        url: "https://localhost:44304/api/Departments/" + nodes[y],
+                        beforeSend: function () {
+                            $('#deleteResponse').html('');
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            // if(data.status == 'Cerated ...'){
+                            swal({
+                                title: 'Done',
+                                text: "Successfuly deleted",
+                                type: 'success',
+                                icon: "success",
+                                confirmButtonText: 'OK'
+                            });
+                            $('#deleteModal').modal('hide');
+                            $('#deleteContent').html('');
+                            fill_data();
+                            // }
+                        }, error: function (data) {
+                            var code = data.status;
+                            if (code == 500) {
+                                $('#deleteResponse').html(' <div class="alert alert-danger light" role="alert">' +
+                                    ' ' +
+                                    '</div>');
+                            } else if (code == 400) {
+                                $('#deleteResponse').html(' <div class="alert alert-danger light" role="alert">' +
+                                    'Required Fields' +
+                                    '</div>');
+                            } else {
+
+                            }
+                        }
+                    });
+                }
+            }
+            );
+            //return false;
+
+
+        });
+        //$(document).on("change",".jstree-clicked", checkButton);
     });
 
 </script>
