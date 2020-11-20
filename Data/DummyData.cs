@@ -27,9 +27,9 @@ namespace task.Data
                 context.SaveChanges();
 
 
-                var departments = GetDepartments().ToArray();
+                /*var departments = GetDepartments().ToArray();
                 context.Departments.AddRange(departments);
-                context.SaveChanges();
+                context.SaveChanges();*/
 
                 var employees = GetEmployees(context).ToArray();
                 context.Employees.AddRange(employees);

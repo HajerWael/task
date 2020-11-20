@@ -39,6 +39,12 @@ namespace task.Controllers
             return View();
         }
         
+        public IActionResult Departments()
+        {   
+
+            return View();
+        }
+        
         public IActionResult Students()
         {   
 

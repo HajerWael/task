@@ -23,6 +23,11 @@ namespace task.Data
                         .WithOne(e => e.Company)
                         .IsRequired();
 
+            modelBuilder.Entity<Department>()
+            .HasMany(d => d.SubDepartments)
+            .WithOne(d => d.Parent)
+            .HasForeignKey(d => d.ParentId);
+
             /*
             modelBuilder.Entity<EmployeeTask>()
                         .HasKey(et => new { et.EmployeeId, et.TaskId });

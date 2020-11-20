@@ -92,3 +92,4 @@ C:\Users\jora-\source\repos\task\obj\Debug\netcoreapp3.1\task.pdb
 C:\Users\jora-\source\repos\task\obj\Debug\netcoreapp3.1\task.genruntimeconfig.cache
 C:\Users\jora-\source\repos\task\obj\Debug\netcoreapp3.1\Razor\Views\Home\Employees.cshtml.g.cs
 C:\Users\jora-\source\repos\task\obj\Debug\netcoreapp3.1\Razor\Views\Home\Students.cshtml.g.cs
+C:\Users\jora-\source\repos\task\obj\Debug\netcoreapp3.1\Razor\Views\Home\Departments.cshtml.g.cs
